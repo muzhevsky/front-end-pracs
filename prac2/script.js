@@ -99,6 +99,105 @@ function selectCount(group1, group2, student) {
 console.log(studentCount(testGroup));
 selectCount(testGroup, testGroup, testStudent);
 console.log(studentCount(testGroup));
-// Задание4
+let targetAttribute = { name: "target", options: ["_blank", "_self", "_parent", "_top"] };
+let methodAttribute = { name: "method", options: ["get", "post"] };
+let typeAttribute = {
+    name: "type", options: ["button", "checkbox", "color", "date", "datetime-local",
+        "email", "file", "hidden", "image", "month", "number", "password",
+        "radio", "range", "reset", "search", "submit", "tel", "text", "time",
+        "url", "week"]
+};
+let divObj = { name: "div", simpleAttributes: ["id", "class"], hasBody: true };
+let h1Obj = { name: "h1", simpleAttributes: ["id", "class"], hasBody: true };
+let aObj = {
+    name: "a",
+    simpleAttributes: ["id", "class", "href"],
+    selectionAttributes: [targetAttribute],
+    hasBody: true
+};
+let formObj = {
+    name: "form",
+    simpleAttributes: ["id", "class", "action"],
+    selectionAttributes: [methodAttribute],
+    hasBody: true
+};
+let inputObj = {
+    name: "input",
+    simpleAttributes: ["id", "class", "name", "value"],
+    selectionAttributes: [typeAttribute],
+    hasBody: false
+};
+let tags = new Map();
+tags.set("div", divObj);
+tags.set("h1", h1Obj);
+tags.set("a", aObj);
+tags.set("form", formObj);
+tags.set("input", inputObj);
 let formSelect = document.querySelector("select[name = \"tags\"]");
-console.log(formSelect.value);
+let optionsContainer = document.querySelector("#optionsContainer");
+let createElementButton = document.querySelector("#createElementButton");
+let elementContainer = document.querySelector("#elementContainer");
+let attributeMap = new Map();
+let selectedTag;
+optionsContainer.addEventListener("change", (ev) => {
+    let target = ev.target;
+    if (target == null)
+        return;
+    attributeMap.set(target.name, target.value);
+});
+formSelect.addEventListener("change", (event) => {
+    var _a;
+    attributeMap = new Map();
+    selectedTag = tags.get(formSelect.value);
+    if (selectedTag == undefined)
+        return;
+    optionsContainer.innerHTML = "";
+    for (let i = 0; i < selectedTag.simpleAttributes.length; i++) {
+        let span = document.createElement("span");
+        span.innerHTML = selectedTag.simpleAttributes[i];
+        let input = document.createElement("input");
+        input.type = "text";
+        input.name = selectedTag.simpleAttributes[i];
+        optionsContainer.appendChild(span);
+        optionsContainer.appendChild(input);
+        optionsContainer.innerHTML += "<br>";
+    }
+    if (selectedTag.selectionAttributes != undefined) {
+        for (let i = 0; i < ((_a = selectedTag.selectionAttributes) === null || _a === void 0 ? void 0 : _a.length); i++) {
+            let span = document.createElement("span");
+            span.innerHTML = selectedTag.selectionAttributes[i].name;
+            let select = document.createElement("select");
+            select.name = selectedTag.selectionAttributes[i].name;
+            for (let j = 0; j < selectedTag.selectionAttributes[i].options.length; j++) {
+                let option = document.createElement("option");
+                option.text = selectedTag === null || selectedTag === void 0 ? void 0 : selectedTag.selectionAttributes[i].options[j];
+                select.options.add(option);
+            }
+            optionsContainer.appendChild(span);
+            optionsContainer.appendChild(select);
+            optionsContainer.innerHTML += "<br>";
+            console.log(optionsContainer);
+        }
+    }
+    if (!selectedTag.hasBody)
+        return;
+    let span = document.createElement("span");
+    span.innerHTML = "innerHtml";
+    let input = document.createElement("input");
+    input.name = "innerHtml";
+    optionsContainer.appendChild(span);
+    optionsContainer.appendChild(input);
+});
+createElementButton.addEventListener("click", (event) => {
+    let body = "";
+    body += "<" + formSelect.options[formSelect.selectedIndex].text;
+    attributeMap.forEach((value, key, map) => {
+        body += " " + key + "=\"" + value + "\"";
+    });
+    body += ">";
+    if (attributeMap.has("innerHtml")) {
+        body += attributeMap.get("innerHtml");
+        body += "</" + formSelect.options[formSelect.selectedIndex].text + ">";
+    }
+    elementContainer.innerHTML = body;
+});

@@ -124,7 +124,7 @@ console.log(getName(testTeacher));
 
 
 // Задание3.3
-function studentCount(object: Teacher | Group) : number {
+function studentCount(object: Teacher | Group): number {
     let result: number = 0;
 
     if (!("curatedGroups" in object))
@@ -132,7 +132,7 @@ function studentCount(object: Teacher | Group) : number {
 
     if (!object.curatedGroups) return 0;
 
-    object.curatedGroups.forEach((group) => result+=group.students.length);
+    object.curatedGroups.forEach((group) => result += group.students.length);
 
     return result;
 }
@@ -141,7 +141,7 @@ console.log(studentCount(testGroup));
 console.log(studentCount(testTeacher));
 
 // Задание3.4
-function selectCount(group1: Group, group2: Group, student: Student){
+function selectCount(group1: Group, group2: Group, student: Student) {
     let group: Group = group1.students.length < group2.students.length ? group1 : group2;
     group.students.push(student);
 }
@@ -152,9 +152,139 @@ selectCount(testGroup, testGroup, testStudent);
 console.log(studentCount(testGroup));
 
 
-
 // Задание4
 
-let formSelect = document.querySelector("select[name = \"tags\"]") as HTMLSelectElement
-console.log(formSelect.value);
+type selectionAttribute = {
+    name: string;
+    options: string[];
+}
 
+type tag = {
+    name: string;
+    simpleAttributes: string[];
+    selectionAttributes?: selectionAttribute[];
+    hasBody: boolean;
+}
+
+let targetAttribute: selectionAttribute = {name: "target", options: ["_blank", "_self", "_parent", "_top"]}
+let methodAttribute: selectionAttribute = {name: "method", options: ["get", "post"]}
+let typeAttribute: selectionAttribute = {
+    name: "type", options: ["button", "checkbox", "color", "date", "datetime-local",
+        "email", "file", "hidden", "image", "month", "number", "password",
+        "radio", "range", "reset", "search", "submit", "tel", "text", "time",
+        "url", "week"]
+}
+
+let divObj: tag = {name: "div", simpleAttributes: ["id", "class"], hasBody: true};
+let h1Obj: tag = {name: "h1", simpleAttributes: ["id", "class"], hasBody: true};
+let aObj: tag = {
+    name: "a",
+    simpleAttributes: ["id", "class", "href"],
+    selectionAttributes: [targetAttribute],
+    hasBody: true
+};
+let formObj: tag = {
+    name: "form",
+    simpleAttributes: ["id", "class", "action"],
+    selectionAttributes: [methodAttribute],
+    hasBody: true
+};
+let inputObj: tag = {
+    name: "input",
+    simpleAttributes: ["id", "class", "name", "value"],
+    selectionAttributes: [typeAttribute],
+    hasBody: false
+};
+
+let tags = new Map<string, tag>();
+tags.set("div", divObj);
+tags.set("h1", h1Obj);
+tags.set("a", aObj);
+tags.set("form", formObj);
+tags.set("input", inputObj);
+
+
+let formSelect = document.querySelector("select[name = \"tags\"]") as HTMLSelectElement;
+let optionsContainer = document.querySelector("#optionsContainer") as HTMLElement;
+let createElementButton = document.querySelector("#createElementButton") as HTMLElement;
+let elementContainer = document.querySelector("#elementContainer") as HTMLElement;
+
+let attributeMap = new Map<string, string>();
+
+let selectedTag: tag | undefined;
+
+optionsContainer.addEventListener("change", (ev) => {
+    let target = ev.target as HTMLInputElement;
+    if (target == null) return;
+    attributeMap.set(target.name, target.value);
+});
+
+formSelect.addEventListener("change", (event) => {
+    attributeMap = new Map<string, string>();
+    selectedTag = tags.get(formSelect.value);
+    if (selectedTag == undefined) return;
+
+    optionsContainer.innerHTML = "";
+
+    for (let i = 0; i < selectedTag.simpleAttributes.length; i++) {
+        let span = document.createElement("span");
+        span.innerHTML = selectedTag.simpleAttributes[i];
+
+        let input = document.createElement("input");
+        input.type = "text";
+        input.name = selectedTag.simpleAttributes[i];
+
+        optionsContainer.appendChild(span);
+        optionsContainer.appendChild(input);
+        optionsContainer.innerHTML += "<br>";
+    }
+
+    if (selectedTag.selectionAttributes != undefined) {
+        for (let i = 0; i < selectedTag.selectionAttributes?.length; i++) {
+            let span = document.createElement("span");
+            span.innerHTML = selectedTag.selectionAttributes[i].name;
+
+            let select = document.createElement("select");
+            select.name = selectedTag.selectionAttributes[i].name;
+
+            for (let j = 0; j < selectedTag.selectionAttributes[i].options.length; j++) {
+                let option = document.createElement("option");
+                option.text = selectedTag?.selectionAttributes[i].options[j];
+                select.options.add(option);
+            }
+
+            optionsContainer.appendChild(span);
+            optionsContainer.appendChild(select);
+            optionsContainer.innerHTML += "<br>";
+            console.log(optionsContainer);
+        }
+    }
+
+    if (!selectedTag.hasBody) return;
+    let span = document.createElement("span");
+    span.innerHTML = "innerHtml";
+
+    let input = document.createElement("input");
+    input.name = "innerHtml";
+
+    optionsContainer.appendChild(span);
+    optionsContainer.appendChild(input);
+});
+
+createElementButton.addEventListener("click", (event) => {
+    let body: string = "";
+    body += "<" + formSelect.options[formSelect.selectedIndex].text;
+
+    attributeMap.forEach((value, key, map) => {
+        body += " " + key + "=\"" + value + "\"";
+    })
+
+    body += ">";
+
+    if (attributeMap.has("innerHtml")){
+        body += attributeMap.get("innerHtml");
+        body += "</" + formSelect.options[formSelect.selectedIndex].text + ">";
+    }
+
+    elementContainer.innerHTML = body;
+});
