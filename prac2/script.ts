@@ -84,13 +84,15 @@ type Teacher = {
     scienceDegree: null | "ktn" | "professor"
 }
 
+
+// Задание3.1
 const defaultGetFullName = (fullName: FullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
 
 let testFullName: FullName = {name: "Иванов", surname: "Иван", patronymic: null};
 let testFullName2: FullName = {name: "Петров", surname: "Петр", patronymic: "Петрович"};
 let testStudent: Student = {fullname: testFullName};
 let testStudent2: Student = {fullname: testFullName2};
-let testGroup: Group = {students: [testStudent], name: "x1-test-21", course: 2};
+let testGroup: Group = {students: [testStudent, testStudent2], name: "x1-test-21", course: 2};
 let testTeacher: Teacher = {fullname: testFullName, curatedGroups: [testGroup], scienceDegree: "professor"};
 
 function isMyStudent(student: Student, teacher: Teacher): boolean {
@@ -109,44 +111,50 @@ function isMyStudent(student: Student, teacher: Teacher): boolean {
 console.log(isMyStudent(testStudent, testTeacher));
 console.log(isMyStudent(testStudent2, testTeacher));
 
+
+// Задание3.2
 function getName(object: Student | Teacher | Group): string | FullName {
     if ("fullname" in object) return defaultGetFullName(object.fullname);
-    return (object as Group).name;
+    return object.name;
 }
 
 console.log(getName(testStudent));
 console.log(getName(testGroup));
 console.log(getName(testTeacher));
 
-console.log(studentCount(testGroup));
-console.log(studentCount(testTeacher));
 
-
-// TODO: НЕ ЗНАЮ КАК ЧЕКАТЬ ТИП ПО-ЧЕЛОВЕЧЕСКИ
+// Задание3.3
 function studentCount(object: Teacher | Group) : number {
     let result: number = 0;
-    let localObject: Teacher | Group;
 
-    localObject = object as Group;
-    if (localObject !== undefined){
-        console.log(localObject);
-        result = localObject.students?.length;
-    }
+    if (!("curatedGroups" in object))
+        return object.students.length;
 
-    localObject = (object as Teacher);
-    if (localObject !== undefined){
-        console.log(localObject);
-        if (!localObject.curatedGroups) return 0;
-        for (let i = 0; i < localObject.curatedGroups.length; i++){
-            result += localObject.curatedGroups[i].students.length;
-        }
-    }
+    if (!object.curatedGroups) return 0;
+
+    object.curatedGroups.forEach((group) => result+=group.students.length);
 
     return result;
 }
 
+console.log(studentCount(testGroup));
+console.log(studentCount(testTeacher));
 
+// Задание3.4
 function selectCount(group1: Group, group2: Group, student: Student){
     let group: Group = group1.students.length < group2.students.length ? group1 : group2;
     group.students.push(student);
 }
+
+
+console.log(studentCount(testGroup));
+selectCount(testGroup, testGroup, testStudent);
+console.log(studentCount(testGroup));
+
+
+
+// Задание4
+
+let formSelect = document.querySelector("select[name = \"tags\"]") as HTMLSelectElement
+console.log(formSelect.value);
+

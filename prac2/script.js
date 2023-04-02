@@ -47,12 +47,13 @@ console.log(getArray("привет я ненавижу js, но ts вроде н
 console.log(getArray(7));
 console.log(getArray(array));
 console.log(getArray(null));
+// Задание3.1
 const defaultGetFullName = (fullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
 let testFullName = { name: "Иванов", surname: "Иван", patronymic: null };
 let testFullName2 = { name: "Петров", surname: "Петр", patronymic: "Петрович" };
 let testStudent = { fullname: testFullName };
 let testStudent2 = { fullname: testFullName2 };
-let testGroup = { students: [testStudent], name: "x1-test-21", course: 2 };
+let testGroup = { students: [testStudent, testStudent2], name: "x1-test-21", course: 2 };
 let testTeacher = { fullname: testFullName, curatedGroups: [testGroup], scienceDegree: "professor" };
 function isMyStudent(student, teacher) {
     if (teacher == null)
@@ -69,6 +70,7 @@ function isMyStudent(student, teacher) {
 }
 console.log(isMyStudent(testStudent, testTeacher));
 console.log(isMyStudent(testStudent2, testTeacher));
+// Задание3.2
 function getName(object) {
     if ("fullname" in object)
         return defaultGetFullName(object.fullname);
@@ -77,29 +79,26 @@ function getName(object) {
 console.log(getName(testStudent));
 console.log(getName(testGroup));
 console.log(getName(testTeacher));
-console.log(studentCount(testGroup));
-console.log(studentCount(testTeacher));
-// TODO: ХЗ КАК ДЕЛАТЬ
+// Задание3.3
 function studentCount(object) {
-    var _a;
     let result = 0;
-    let localObject;
-    localObject = object;
-    if (localObject !== undefined) {
-        console.log(localObject);
-        result = (_a = localObject.students) === null || _a === void 0 ? void 0 : _a.length;
-    }
-    localObject = object;
-    if (localObject !== undefined) {
-        console.log(localObject);
-        if (!localObject.curatedGroups)
-            return 0;
-        for (let i = 0; i < localObject.curatedGroups.length; i++) {
-            result += localObject.curatedGroups[i].students.length;
-        }
-    }
+    if (!("curatedGroups" in object))
+        return object.students.length;
+    if (!object.curatedGroups)
+        return 0;
+    object.curatedGroups.forEach((group) => result += group.students.length);
     return result;
 }
+console.log(studentCount(testGroup));
+console.log(studentCount(testTeacher));
+// Задание3.4
 function selectCount(group1, group2, student) {
-    let group, group1;
+    let group = group1.students.length < group2.students.length ? group1 : group2;
+    group.students.push(student);
 }
+console.log(studentCount(testGroup));
+selectCount(testGroup, testGroup, testStudent);
+console.log(studentCount(testGroup));
+// Задание4
+let formSelect = document.querySelector("select[name = \"tags\"]");
+console.log(formSelect.value);
