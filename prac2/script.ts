@@ -86,7 +86,7 @@ type Teacher = {
 
 
 // Задание3.1
-const defaultGetFullName = (fullName: FullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
+
 
 let testFullName: FullName = {name: "Иванов", surname: "Иван", patronymic: null};
 let testFullName2: FullName = {name: "Петров", surname: "Петр", patronymic: "Петрович"};
@@ -113,6 +113,7 @@ console.log(isMyStudent(testStudent2, testTeacher));
 
 
 // Задание3.2
+const defaultGetFullName = (fullName: FullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
 function getName(object: Student | Teacher | Group): string | FullName {
     if ("fullname" in object) return defaultGetFullName(object.fullname);
     return object.name;
@@ -213,13 +214,9 @@ let attributeMap = new Map<string, string>();
 
 let selectedTag: tag | undefined;
 
-optionsContainer.addEventListener("change", (ev) => {
-    let target = ev.target as HTMLInputElement;
-    if (target == null) return;
-    attributeMap.set(target.name, target.value);
-});
 
-formSelect.addEventListener("change", (event) => {
+
+function onTagChange(){
     attributeMap = new Map<string, string>();
     selectedTag = tags.get(formSelect.value);
     if (selectedTag == undefined) return;
@@ -269,6 +266,22 @@ formSelect.addEventListener("change", (event) => {
 
     optionsContainer.appendChild(span);
     optionsContainer.appendChild(input);
+}
+
+
+
+onTagChange();
+
+
+
+formSelect.addEventListener("change", (event) => {
+    onTagChange();
+});
+
+optionsContainer.addEventListener("change", (ev) => {
+    let target = ev.target as HTMLInputElement;
+    if (target == null) return;
+    attributeMap.set(target.name, target.value);
 });
 
 createElementButton.addEventListener("click", (event) => {
@@ -276,6 +289,7 @@ createElementButton.addEventListener("click", (event) => {
     body += "<" + formSelect.options[formSelect.selectedIndex].text;
 
     attributeMap.forEach((value, key, map) => {
+        if (key == "innerHtml") return;
         body += " " + key + "=\"" + value + "\"";
     })
 

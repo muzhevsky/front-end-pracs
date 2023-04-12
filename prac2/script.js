@@ -48,7 +48,6 @@ console.log(getArray(7));
 console.log(getArray(array));
 console.log(getArray(null));
 // Задание3.1
-const defaultGetFullName = (fullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
 let testFullName = { name: "Иванов", surname: "Иван", patronymic: null };
 let testFullName2 = { name: "Петров", surname: "Петр", patronymic: "Петрович" };
 let testStudent = { fullname: testFullName };
@@ -71,6 +70,7 @@ function isMyStudent(student, teacher) {
 console.log(isMyStudent(testStudent, testTeacher));
 console.log(isMyStudent(testStudent2, testTeacher));
 // Задание3.2
+const defaultGetFullName = (fullName) => fullName.name + " " + fullName.surname + (fullName.patronymic === null ? "" : fullName.patronymic);
 function getName(object) {
     if ("fullname" in object)
         return defaultGetFullName(object.fullname);
@@ -139,13 +139,7 @@ let createElementButton = document.querySelector("#createElementButton");
 let elementContainer = document.querySelector("#elementContainer");
 let attributeMap = new Map();
 let selectedTag;
-optionsContainer.addEventListener("change", (ev) => {
-    let target = ev.target;
-    if (target == null)
-        return;
-    attributeMap.set(target.name, target.value);
-});
-formSelect.addEventListener("change", (event) => {
+function onTagChange() {
     var _a;
     attributeMap = new Map();
     selectedTag = tags.get(formSelect.value);
@@ -187,11 +181,23 @@ formSelect.addEventListener("change", (event) => {
     input.name = "innerHtml";
     optionsContainer.appendChild(span);
     optionsContainer.appendChild(input);
+}
+onTagChange();
+formSelect.addEventListener("change", (event) => {
+    onTagChange();
+});
+optionsContainer.addEventListener("change", (ev) => {
+    let target = ev.target;
+    if (target == null)
+        return;
+    attributeMap.set(target.name, target.value);
 });
 createElementButton.addEventListener("click", (event) => {
     let body = "";
     body += "<" + formSelect.options[formSelect.selectedIndex].text;
     attributeMap.forEach((value, key, map) => {
+        if (key == "innerHtml")
+            return;
         body += " " + key + "=\"" + value + "\"";
     });
     body += ">";
